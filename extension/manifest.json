@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Floating Meet Strip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Strips Google Meet's floating window down to faces. Controls appear on hover.",
   "content_scripts": [
     {
