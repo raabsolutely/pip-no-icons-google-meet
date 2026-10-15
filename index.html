@@ -18,7 +18,7 @@
     --window: #202124;
     --chrome: #2B2C2F;
     --ring: #A8C7FA;
-    --crayon: #2F62D0;
+    --crayon: #6CC4EE;
     --hangup: #DC362E;
     --mute-bg: #F9DEDC;
     --mute-fg: #601410;
@@ -32,7 +32,7 @@
       --ink: #E6EAF0;
       --muted: #9AA4B2;
       --line: #313A45;
-      --crayon: #8AB4F8;
+      --crayon: #7DD3FC;
     }
   }
 
@@ -83,26 +83,19 @@
     min-height: 26rem;
   }
 
-  /* Crayon arrow from the hint up to the stripped window, drawn on when you switch to it */
+  /* Crayon arrow from the end of the hint up to the stripped window */
+  .hint-text { position: relative; }
   .arrow {
     position: absolute;
-    left: 50%;
-    bottom: -.7rem;
-    width: 12rem;
-    height: 12rem;
+    left: calc(100% + .5rem);
+    bottom: .35em;
+    width: 8.4rem;
+    height: 14rem;
     color: var(--crayon);
     pointer-events: none;
-    opacity: 0;
-    transition: opacity .2s ease;
   }
-  .arrow path {
-    fill: none; stroke: currentColor; stroke-width: 7;
-    stroke-linecap: round; stroke-linejoin: round;
-    stroke-dasharray: 1; stroke-dashoffset: 1;
-  }
-  .stage:has(.shot.clean) .arrow { opacity: 1; }
-  .stage:has(.shot.clean) .arrow path { stroke-dashoffset: 0; transition: stroke-dashoffset .55s cubic-bezier(.6, 0, .3, 1); }
-  .stage:has(.shot.clean) .arrow .head { transition-delay: .5s; transition-duration: .2s; }
+  .arrow path { fill: none; stroke: currentColor; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+
   .doc { max-width: 30rem; }
   .doc i {
     display: block; height: .7rem; margin: 0 0 .95rem;
@@ -205,21 +198,6 @@
       <img class="img-hover" src="assets/hover.webp" width="1722" height="318" alt="With the pointer over the window, Meet's controls appear over the faces.">
     </figure>
 
-    <svg class="arrow" viewBox="0 0 200 200" aria-hidden="true">
-      <defs>
-        <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
-          <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="wobble"/>
-          <feDisplacementMap in="SourceGraphic" in2="wobble" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-          <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="11" result="grain"/>
-          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 0 0 0 2.3" result="tooth"/>
-          <feComposite in="rough" in2="tooth" operator="in"/>
-        </filter>
-      </defs>
-      <g filter="url(#crayon)">
-        <path pathLength="1" d="M14 192 C 52 176, 92 150, 116 108 C 134 76, 146 46, 158 20"/>
-        <path class="head" pathLength="1" d="M128 38 C 140 30, 150 24, 159 17 C 163 30, 166 42, 170 54"/>
-      </g>
-    </svg>
   </div>
 
   <div class="demo-bar">
@@ -227,7 +205,21 @@
       <button type="button" data-view="before" aria-pressed="true">Meet's default</button>
       <button type="button" data-view="after" aria-pressed="false">With the extension</button>
     </div>
-    <p class="hint" id="hint">Hover or tap the window to bring the controls back.</p>
+    <p class="hint" id="hint"><span class="hint-text">Hover or tap the window to bring the controls back.<svg class="arrow" viewBox="0 0 120 200" aria-hidden="true">
+      <defs>
+        <filter id="crayon" x="-15%" y="-5%" width="130%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="wobble"/>
+          <feDisplacementMap in="SourceGraphic" in2="wobble" scale="3" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+          <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="11" result="grain"/>
+          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 0 0 0 2.3" result="tooth"/>
+          <feComposite in="rough" in2="tooth" operator="in"/>
+        </filter>
+      </defs>
+      <g filter="url(#crayon)">
+        <path d="M4 196 C 46 176, 92 134, 95 84 C 97 50, 93 24, 89 6"/>
+        <path d="M76 36 C 80 25, 84 15, 89 6 C 96 14, 104 22, 114 28"/>
+      </g>
+    </svg></span></p>
   </div>
 
   <div class="actions">
