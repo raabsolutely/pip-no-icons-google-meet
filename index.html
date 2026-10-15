@@ -10,29 +10,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600..800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --desk: #E9ECEF;
-    --paper: #F7F8F9;
-    --ink: #1C2430;
-    --muted: #5A6472;
-    --line: #CDD3DA;
-    --window: #202124;
-    --chrome: #2B2C2F;
-    --ring: #A8C7FA;
-    --crayon: #6CC4EE;
-    --hangup: #DC362E;
-    --mute-bg: #F9DEDC;
-    --mute-fg: #601410;
-    --button: #3C4043;
+    --desk: #F7DFCF;
+    --paper: #FDF2EA;
+    --ink: #2B1E19;
+    --muted: #76594D;
+    --line: #EBCAB6;
+    --accent: #C2532F;
+    --accent-hover: #A2411F;
+    --on-accent: #FFFFFF;
     --measure: 40rem;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --desk: #15191F;
-      --paper: #1D232B;
-      --ink: #E6EAF0;
-      --muted: #9AA4B2;
-      --line: #313A45;
-      --crayon: #7DD3FC;
+      --desk: #1F1714;
+      --paper: #2A1F1B;
+      --ink: #F4E6DD;
+      --muted: #C2A698;
+      --line: #43322B;
+      --accent: #E27B57;
+      --accent-hover: #EE9474;
+      --on-accent: #1F1714;
     }
   }
 
@@ -46,7 +43,7 @@
   }
   a { color: inherit; text-underline-offset: .18em; }
   a:hover { text-decoration-thickness: 2px; }
-  :focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; border-radius: 4px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
   .wrap { max-width: 64rem; margin: 0 auto; padding: 0 1.25rem; }
   .prose { max-width: var(--measure); }
@@ -71,6 +68,7 @@
     margin: 0 0 1.25rem;
     max-width: 14ch;
   }
+  h1 .accent { color: var(--accent); }
   .lede { font-size: 1.25rem; line-height: 1.5; color: var(--muted); margin: 0; max-width: 34rem; }
 
   /* Demo: a desk with a document, the floating window on top */
@@ -89,9 +87,9 @@
     position: absolute;
     left: calc(100% + .5rem);
     bottom: .35em;
-    width: 8.4rem;
-    height: 14rem;
-    color: var(--crayon);
+    width: 9.6rem;
+    height: 16rem;
+    color: var(--accent);
     pointer-events: none;
   }
   .arrow path { fill: none; stroke: currentColor; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -137,17 +135,16 @@
     background: none; border: 0; border-radius: 999px;
     padding: .4rem 1rem; cursor: pointer;
   }
-  .toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .toggle button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
   .hint { color: var(--muted); font-size: .9375rem; margin: 0; }
 
   .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; padding: 2.5rem 0 1rem; }
   .button {
     display: inline-block; text-decoration: none;
-    background: var(--ink); color: var(--paper);
+    background: var(--accent); color: var(--on-accent);
     font-weight: 700; padding: .8rem 1.4rem; border-radius: 10px;
   }
-  .button:hover { background: #2E3A4B; }
-  @media (prefers-color-scheme: dark) { .button:hover { background: #fff; } }
+  .button:hover { background: var(--accent-hover); }
   .actions small { color: var(--muted); font-size: .9375rem; }
 
   section { padding: 2.5rem 0; }
@@ -183,7 +180,7 @@
   </header>
 
   <div class="intro">
-    <h1>Meet's floating window, without the buttons.</h1>
+    <h1>Meet's floating window, <span class="accent">without the buttons.</span></h1>
     <p class="lede">A small Chrome extension that strips Google Meet's picture-in-picture window down to the people in your call. Shrink it to a strip and keep working.</p>
   </div>
 
@@ -228,6 +225,11 @@
   </div>
 
   <section class="prose">
+    <h2>Main use case</h2>
+    <p>Position the participant strip just underneath your camera bezel. When you speak, you naturally look at their faces, and that means looking into the camera. The people in the call see you making eye contact.</p>
+  </section>
+
+  <section class="prose">
     <h2>What changes</h2>
     <div class="changes">
       <div>
@@ -265,7 +267,7 @@
     <h2>Use</h2>
     <ol>
       <li>In a call, open More options (the three dots) and choose Open picture-in-picture mode.</li>
-      <li>Drag the window's edge until it's a strip.</li>
+      <li>Drag the window's edge until it's a strip, and move it just under your camera.</li>
       <li>Hover the window when you need to mute, turn off your camera, or leave.</li>
     </ol>
   </section>
