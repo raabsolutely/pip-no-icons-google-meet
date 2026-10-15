@@ -18,6 +18,7 @@
     --accent: #C2532F;
     --accent-hover: #A2411F;
     --on-accent: #FFFFFF;
+    --bezel: #141516;
     --measure: 40rem;
   }
   @media (prefers-color-scheme: dark) {
@@ -72,13 +73,23 @@
   .lede { font-size: 1.25rem; line-height: 1.5; color: var(--muted); margin: 0; max-width: 34rem; }
 
   /* Demo: a desk with a document, the floating window on top */
+  /* The demo is a laptop screen: dark bezel, notch with camera, strip tucked under it */
   .stage {
     position: relative;
     background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    border: 14px solid var(--bezel);
+    border-radius: 28px;
     padding: clamp(1.25rem, 4vw, 3rem);
-    min-height: 26rem;
+    min-height: 24rem;
+    box-shadow: 0 30px 60px -24px rgba(80,40,20,.35);
+  }
+  .notch {
+    position: absolute; left: 50%; top: -1px; transform: translateX(-50%);
+    width: 11rem; height: 1.75rem; background: var(--bezel); border-radius: 0 0 14px 14px;
+  }
+  .notch::after {
+    content: ""; position: absolute; left: 50%; top: .5rem; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #3b4a63 0 20%, #12161d 45%, #05070a 100%); box-shadow: 0 0 0 2px #1b1d21;
   }
 
   /* Crayon arrow from the end of the hint up to the stripped window */
@@ -87,14 +98,14 @@
     position: absolute;
     left: calc(100% + .5rem);
     bottom: .35em;
-    width: 9.6rem;
-    height: 16rem;
+    width: 10.5rem;
+    height: 28rem;
     color: var(--accent);
     pointer-events: none;
   }
   .arrow path { fill: none; stroke: currentColor; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
 
-  .doc { max-width: 30rem; }
+  .doc { max-width: 40rem; margin-top: 10rem; }
   .doc i {
     display: block; height: .7rem; margin: 0 0 .95rem;
     background: var(--line); border-radius: 3px;
@@ -106,16 +117,17 @@
 
   .shot {
     position: absolute;
-    right: clamp(1rem, 4vw, 3rem);
-    top: clamp(5rem, 12vw, 7rem);
-    width: min(46rem, calc(100% - 2rem));
+    left: 50%;
+    top: 2.4rem;
+    transform: translateX(-50%);
+    width: min(42rem, calc(100% - 2rem));
     margin: 0;
     border-radius: 12px;
     box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 18px 48px -12px rgba(15,23,42,.45);
   }
   .shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
   /* The stripped window is narrower than Meet's default, so keep both at screenshot scale */
-  .shot.clean { width: min(44.25rem, calc(96.2% - 2rem)); }
+  .shot.clean { width: min(40.4rem, calc(96.2% - 2rem)); }
   .shot .img-after, .shot .img-hover { display: none; }
   .shot.clean .img-before { display: none; }
   .shot.clean .img-after { display: block; }
@@ -166,9 +178,11 @@
   footer { padding: 3rem 0 4rem; color: var(--muted); font-size: .9375rem; }
 
   @media (max-width: 40rem) {
-    .stage { min-height: 0; padding-bottom: 1.25rem; }
+    .stage { min-height: 0; padding: 2.5rem 1rem 1.25rem; border-width: 10px; border-radius: 20px; }
+    .notch { width: 7rem; height: 1.25rem; }
+    .notch::after { top: .3rem; width: 8px; height: 8px; margin-left: -4px; }
     .doc, .arrow { display: none; }
-    .shot, .shot.clean { position: relative; right: auto; top: auto; width: 100%; }
+    .shot, .shot.clean { position: relative; left: auto; top: auto; transform: none; width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -187,9 +201,10 @@
     <p class="lede">A small Chrome extension that strips Google Meet's picture-in-picture window down to the people in your call. Shrink it to a strip and keep working.</p>
   </div>
 
-  <div class="stage" aria-label="Demo of the floating Meet window over a document">
+  <div class="stage" aria-label="Demo of the floating Meet window under a laptop camera">
+    <span class="notch" aria-hidden="true"></span>
     <div class="doc" aria-hidden="true">
-      <i class="h"></i><i></i><i></i><i></i><i class="gap"></i><i></i><i></i><i></i><i></i><i class="gap"></i><i></i><i></i><i></i>
+      <i class="h"></i><i></i><i></i><i></i><i class="gap"></i><i></i><i></i><i></i><i></i><i></i>
     </div>
 
     <figure class="shot" id="shot" tabindex="0">
@@ -205,7 +220,7 @@
       <button type="button" data-view="before" aria-pressed="true">Meet's default</button>
       <button type="button" data-view="after" aria-pressed="false">With the extension</button>
     </div>
-    <p class="hint" id="hint"><span class="hint-text">Hover or tap the window to bring the controls back.<svg class="arrow" viewBox="0 0 120 200" aria-hidden="true">
+    <p class="hint" id="hint"><span class="hint-text">Hover or tap the window to bring the controls back.<svg class="arrow" viewBox="0 0 120 300" aria-hidden="true">
       <defs>
         <filter id="crayon" x="-15%" y="-5%" width="130%" height="110%">
           <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="wobble"/>
@@ -216,7 +231,7 @@
         </filter>
       </defs>
       <g filter="url(#crayon)">
-        <path d="M4 196 C 46 176, 92 134, 95 84 C 97 50, 93 24, 89 6"/>
+        <path d="M4 296 C 52 276, 96 222, 97 140 C 98 84, 94 38, 89 6"/>
         <path d="M76 36 C 80 25, 84 15, 89 6 C 96 14, 104 22, 114 28"/>
       </g>
     </svg></span></p>
