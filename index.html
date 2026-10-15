@@ -136,7 +136,10 @@
     padding: .4rem 1rem; cursor: pointer;
   }
   .toggle button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
-  .hint { color: var(--muted); font-size: .9375rem; margin: 0; }
+  .hint { color: var(--muted); font-size: .9375rem; margin: 0; transition: opacity .25s ease, visibility .25s; }
+  .hint.off { opacity: 0; visibility: hidden; }
+  .shot { transition: opacity .25s ease; }
+  .shot.fading { opacity: 0; }
 
   .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; padding: 2.5rem 0 1rem; }
   .button {
@@ -291,19 +294,46 @@
   const shot = document.getElementById('shot');
   const hint = document.getElementById('hint');
   const buttons = document.querySelectorAll('.toggle button');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DWELL = { before: 3000, after: 6000 };
+  const FADE = 250;
 
-  const show = (view) => {
+  let view = 'before';
+  let auto = !reduced;
+  let timer;
+
+  const render = () => {
     shot.classList.toggle('clean', view === 'after');
+    hint.classList.toggle('off', view !== 'after');
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-    hint.style.visibility = view === 'after' ? 'visible' : 'hidden';
   };
 
-  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
+  const show = (next, fade) => {
+    if (next === view) return;
+    if (!fade) { view = next; render(); schedule(); return; }
+    shot.classList.add('fading');
+    setTimeout(() => { view = next; render(); shot.classList.remove('fading'); schedule(); }, FADE);
+  };
 
-  // Start on Meet's default, then strip it once so the change is the first thing you see.
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  show(reduced ? 'after' : 'before');
-  if (!reduced) setTimeout(() => show('after'), 1400);
+  // Alternate on its own until someone takes over: hover or focus pauses it, a click stops it.
+  const schedule = () => {
+    clearTimeout(timer);
+    if (!auto || document.hidden) return;
+    timer = setTimeout(() => show(view === 'after' ? 'before' : 'after', true), DWELL[view]);
+  };
+  const pause = () => clearTimeout(timer);
+
+  buttons.forEach((b) => b.addEventListener('click', () => { auto = false; pause(); show(b.dataset.view, false); }));
+  shot.addEventListener('pointerenter', pause);
+  shot.addEventListener('pointerleave', schedule);
+  shot.addEventListener('focusin', pause);
+  shot.addEventListener('focusout', schedule);
+  document.addEventListener('visibilitychange', schedule);
+
+  // Reduced motion: no cycling, just the stripped window.
+  if (reduced) view = 'after';
+  render();
+  if (!reduced) setTimeout(() => show('after', true), 1400);
 </script>
 </body>
 </html>
