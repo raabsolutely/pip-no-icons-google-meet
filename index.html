@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PiP No Icons Google Meet</title>
+<meta name="description" content="A Chrome extension that strips Google Meet's picture-in-picture window down to the people in your call.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --desk: #E9ECEF;
+    --paper: #F7F8F9;
+    --ink: #1C2430;
+    --muted: #5A6472;
+    --line: #CDD3DA;
+    --window: #202124;
+    --chrome: #2B2C2F;
+    --ring: #A8C7FA;
+    --hangup: #DC362E;
+    --mute-bg: #F9DEDC;
+    --mute-fg: #601410;
+    --button: #3C4043;
+    --measure: 40rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --desk: #15191F;
+      --paper: #1D232B;
+      --ink: #E6EAF0;
+      --muted: #9AA4B2;
+      --line: #313A45;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--desk);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 "Atkinson Hyperlegible", system-ui, sans-serif;
+  }
+  a { color: inherit; text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { max-width: 64rem; margin: 0 auto; padding: 0 1.25rem; }
+  .prose { max-width: var(--measure); }
+
+  header.site {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.5rem 0;
+    font-size: .9375rem;
+  }
+  header.site .name { font-weight: 700; }
+
+  .intro { padding: 3rem 0 2.5rem; }
+  h1 {
+    font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    max-width: 14ch;
+  }
+  .lede { font-size: 1.25rem; line-height: 1.5; color: var(--muted); margin: 0; max-width: 34rem; }
+
+  /* Demo: a desk with a document, the floating window on top */
+  .stage {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: clamp(1.25rem, 4vw, 3rem);
+    overflow: hidden;
+    min-height: 26rem;
+  }
+  .doc { max-width: 30rem; }
+  .doc i {
+    display: block; height: .7rem; margin: 0 0 .95rem;
+    background: var(--line); border-radius: 3px;
+  }
+  .doc i.h { height: 1.4rem; width: 55%; margin-bottom: 1.6rem; }
+  .doc i:nth-child(3n) { width: 88%; }
+  .doc i:nth-child(4n) { width: 72%; }
+  .doc i.gap { margin-bottom: 2rem; }
+
+  .shot {
+    position: absolute;
+    right: clamp(1rem, 4vw, 3rem);
+    top: clamp(5rem, 12vw, 7rem);
+    width: min(46rem, calc(100% - 2rem));
+    margin: 0;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 18px 48px -12px rgba(15,23,42,.45);
+  }
+  .shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  /* The stripped window is narrower than Meet's default, so keep both at screenshot scale */
+  .shot.clean { width: min(44.25rem, calc(96.2% - 2rem)); }
+  .shot .img-after, .shot .img-hover { display: none; }
+  .shot.clean .img-before { display: none; }
+  .shot.clean .img-after { display: block; }
+  .shot.clean:hover .img-after, .shot.clean:focus .img-after { display: none; }
+  .shot.clean:hover .img-hover, .shot.clean:focus .img-hover { display: block; }
+
+  .demo-bar {
+    display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center;
+    margin-top: 1rem;
+  }
+  .toggle {
+    display: inline-flex; padding: 3px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 999px;
+  }
+  .toggle button {
+    font: inherit; font-size: .9375rem; color: var(--muted);
+    background: none; border: 0; border-radius: 999px;
+    padding: .4rem 1rem; cursor: pointer;
+  }
+  .toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .hint { color: var(--muted); font-size: .9375rem; margin: 0; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; padding: 2.5rem 0 1rem; }
+  .button {
+    display: inline-block; text-decoration: none;
+    background: var(--ink); color: var(--paper);
+    font-weight: 700; padding: .8rem 1.4rem; border-radius: 10px;
+  }
+  .button:hover { background: #2E3A4B; }
+  @media (prefers-color-scheme: dark) { .button:hover { background: #fff; } }
+  .actions small { color: var(--muted); font-size: .9375rem; }
+
+  section { padding: 2.5rem 0; }
+  h2 { font-size: 1.5rem; line-height: 1.25; margin: 0 0 1rem; letter-spacing: -.01em; }
+  .changes { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0 3rem; }
+  .changes h3 { font-size: 1.0625rem; margin: 0 0 .5rem; }
+  ul, ol { margin: 0; padding-left: 1.25rem; }
+  li { margin-bottom: .5rem; }
+  li::marker { color: var(--muted); }
+  ol li { padding-left: .25rem; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .9em;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em;
+  }
+
+  footer { padding: 3rem 0 4rem; color: var(--muted); font-size: .9375rem; }
+
+  @media (max-width: 40rem) {
+    .stage { min-height: 0; padding-bottom: 1.25rem; }
+    .doc { display: none; }
+    .shot, .shot.clean { position: relative; right: auto; top: auto; width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <span class="name">PiP No Icons Google Meet</span>
+    <a href="https://github.com/raabsolutely/pip-no-icons-google-meet">GitHub</a>
+  </header>
+
+  <div class="intro">
+    <h1>Meet's floating window, without the buttons.</h1>
+    <p class="lede">A small Chrome extension that strips Google Meet's picture-in-picture window down to the people in your call. Shrink it to a strip and keep working.</p>
+  </div>
+
+  <div class="stage" aria-label="Demo of the floating Meet window over a document">
+    <div class="doc" aria-hidden="true">
+      <i class="h"></i><i></i><i></i><i></i><i class="gap"></i><i></i><i></i><i></i><i></i><i class="gap"></i><i></i><i></i><i></i>
+    </div>
+
+    <figure class="shot" id="shot" tabindex="0">
+      <img class="img-before" src="assets/before.webp" width="1792" height="526" alt="Meet's default floating window: four faces with names, a Gemini button, a row of reactions, and a control bar.">
+      <img class="img-after" src="assets/after.webp" width="1724" height="318" alt="The same window with the extension: four faces in a slim strip, nothing else.">
+      <img class="img-hover" src="assets/hover.webp" width="1722" height="318" alt="With the pointer over the window, Meet's controls appear over the faces.">
+    </figure>
+  </div>
+
+  <div class="demo-bar">
+    <div class="toggle" role="group" aria-label="Compare">
+      <button type="button" data-view="before" aria-pressed="true">Meet's default</button>
+      <button type="button" data-view="after" aria-pressed="false">With the extension</button>
+    </div>
+    <p class="hint" id="hint">Hover or tap the window to bring the controls back.</p>
+  </div>
+
+  <div class="actions">
+    <a class="button" href="https://github.com/raabsolutely/pip-no-icons-google-meet/releases/latest/download/pip-no-icons-google-meet.zip">Download the extension</a>
+    <small>Free, two small files, for Chrome on Mac and Windows.</small>
+  </div>
+
+  <section class="prose">
+    <h2>What changes</h2>
+    <div class="changes">
+      <div>
+        <h3>Hidden</h3>
+        <ul>
+          <li>The control bar, which comes back when you hover the window</li>
+          <li>Names, which come back when you hover a face</li>
+          <li>Mic icons and tile menus</li>
+          <li>The Gemini star</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Unchanged</h3>
+        <ul>
+          <li>The video and Meet's highlight on whoever is speaking</li>
+          <li>Meet's own buttons, which still work as normal</li>
+          <li>The main Meet window</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="prose">
+    <h2>Install</h2>
+    <ol>
+      <li><a href="https://github.com/raabsolutely/pip-no-icons-google-meet/releases/latest/download/pip-no-icons-google-meet.zip">Download the zip</a> and unzip it somewhere it can stay, such as your Documents folder. Chrome loads the extension from this folder, so don't delete it.</li>
+      <li>Open <code>chrome://extensions</code> in Chrome.</li>
+      <li>Turn on Developer mode, top right.</li>
+      <li>Click Load unpacked and choose the <code>pip-no-icons-google-meet</code> folder.</li>
+    </ol>
+    <p>If you use several Chrome profiles, install it in the one your Meet app opens with.</p>
+  </section>
+
+  <section class="prose">
+    <h2>Use</h2>
+    <ol>
+      <li>In a call, open More options (the three dots) and choose Open picture-in-picture mode.</li>
+      <li>Drag the window's edge until it's a strip.</li>
+      <li>Hover the window when you need to mute, turn off your camera, or leave.</li>
+    </ol>
+  </section>
+
+  <section class="prose">
+    <h2>Good to know</h2>
+    <ul>
+      <li>It only changes how the floating window looks. It reads no data and sends nothing anywhere.</li>
+      <li>Chrome's own title bar belongs to the browser and stays.</li>
+      <li>When Google updates Meet, hidden parts can reappear. Download the latest zip, replace your folder, and click reload in <code>chrome://extensions</code>.</li>
+      <li>Company-managed Chrome may block Developer mode. If Load unpacked is missing, that's why.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Made by Marco Raab. <a href="https://github.com/raabsolutely/pip-no-icons-google-meet">Source and releases on GitHub</a>.
+  </footer>
+</div>
+
+<script>
+  const shot = document.getElementById('shot');
+  const hint = document.getElementById('hint');
+  const buttons = document.querySelectorAll('.toggle button');
+
+  const show = (view) => {
+    shot.classList.toggle('clean', view === 'after');
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+    hint.style.visibility = view === 'after' ? 'visible' : 'hidden';
+  };
+
+  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
+
+  // Start on Meet's default, then strip it once so the change is the first thing you see.
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  show(reduced ? 'after' : 'before');
+  if (!reduced) setTimeout(() => show('after'), 1400);
+</script>
+</body>
+</html>

@@ -2,3 +2,5 @@
 docs/
 dist/
 .DS_Store
+shots/
+preview.html
