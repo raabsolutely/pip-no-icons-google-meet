@@ -18,6 +18,7 @@
     --window: #202124;
     --chrome: #2B2C2F;
     --ring: #A8C7FA;
+    --crayon: #2F62D0;
     --hangup: #DC362E;
     --mute-bg: #F9DEDC;
     --mute-fg: #601410;
@@ -31,6 +32,7 @@
       --ink: #E6EAF0;
       --muted: #9AA4B2;
       --line: #313A45;
+      --crayon: #8AB4F8;
     }
   }
 
@@ -74,9 +76,29 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: clamp(1.25rem, 4vw, 3rem);
-    overflow: hidden;
     min-height: 26rem;
   }
+
+  /* Crayon arrow from the hint up to the stripped window, drawn on when you switch to it */
+  .arrow {
+    position: absolute;
+    left: 50%;
+    bottom: -.7rem;
+    width: 12rem;
+    height: 12rem;
+    color: var(--crayon);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .arrow path {
+    fill: none; stroke: currentColor; stroke-width: 7;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 1; stroke-dashoffset: 1;
+  }
+  .stage:has(.shot.clean) .arrow { opacity: 1; }
+  .stage:has(.shot.clean) .arrow path { stroke-dashoffset: 0; transition: stroke-dashoffset .55s cubic-bezier(.6, 0, .3, 1); }
+  .stage:has(.shot.clean) .arrow .head { transition-delay: .5s; transition-duration: .2s; }
   .doc { max-width: 30rem; }
   .doc i {
     display: block; height: .7rem; margin: 0 0 .95rem;
@@ -148,7 +170,7 @@
 
   @media (max-width: 40rem) {
     .stage { min-height: 0; padding-bottom: 1.25rem; }
-    .doc { display: none; }
+    .doc, .arrow { display: none; }
     .shot, .shot.clean { position: relative; right: auto; top: auto; width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -178,6 +200,22 @@
       <img class="img-after" src="assets/after.webp" width="1724" height="318" alt="The same window with the extension: four faces in a slim strip, nothing else.">
       <img class="img-hover" src="assets/hover.webp" width="1722" height="318" alt="With the pointer over the window, Meet's controls appear over the faces.">
     </figure>
+
+    <svg class="arrow" viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="wobble"/>
+          <feDisplacementMap in="SourceGraphic" in2="wobble" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+          <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="11" result="grain"/>
+          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 0 0 0 2.3" result="tooth"/>
+          <feComposite in="rough" in2="tooth" operator="in"/>
+        </filter>
+      </defs>
+      <g filter="url(#crayon)">
+        <path pathLength="1" d="M14 192 C 52 176, 92 150, 116 108 C 134 76, 146 46, 158 20"/>
+        <path class="head" pathLength="1" d="M128 38 C 140 30, 150 24, 159 17 C 163 30, 166 42, 170 54"/>
+      </g>
+    </svg>
   </div>
 
   <div class="demo-bar">
