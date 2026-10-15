@@ -35,7 +35,7 @@
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
   body {
     margin: 0;
     background: var(--desk);
@@ -74,14 +74,19 @@
 
   /* Demo: a desk with a document, the floating window on top */
   /* The demo is a laptop screen: dark bezel, notch with camera, strip tucked under it */
+  /* The screen runs off the bottom, and off both sides once the page is narrower than full width */
+  .screen-crop { overflow: hidden; margin-inline: -1.25rem; }
   .stage {
     position: relative;
+    width: 61.5rem;
+    margin-inline: calc(50% - 30.75rem);
+    box-sizing: border-box;
     background: var(--paper);
     border: 14px solid var(--bezel);
-    border-radius: 28px;
-    padding: clamp(1.25rem, 4vw, 3rem);
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    padding: 3rem;
     min-height: 24rem;
-    box-shadow: 0 30px 60px -24px rgba(80,40,20,.35);
   }
   .notch {
     position: absolute; left: 50%; top: -1px; transform: translateX(-50%);
@@ -99,7 +104,7 @@
     left: calc(100% + .5rem);
     bottom: .35em;
     width: 10.5rem;
-    height: 28rem;
+    height: 27.25rem;
     color: var(--accent);
     pointer-events: none;
   }
@@ -120,14 +125,14 @@
     left: 50%;
     top: 2.4rem;
     transform: translateX(-50%);
-    width: min(42rem, calc(100% - 2rem));
+    width: min(42rem, calc(100vw - 3rem));
     margin: 0;
     border-radius: 12px;
     box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 18px 48px -12px rgba(15,23,42,.45);
   }
   .shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
   /* The stripped window is narrower than Meet's default, so keep both at screenshot scale */
-  .shot.clean { width: min(40.4rem, calc(96.2% - 2rem)); }
+  .shot.clean { width: min(40.4rem, calc((100vw - 3rem) * .962)); }
   .shot .img-after, .shot .img-hover { display: none; }
   .shot.clean .img-before { display: none; }
   .shot.clean .img-after { display: block; }
@@ -177,12 +182,14 @@
 
   footer { padding: 3rem 0 4rem; color: var(--muted); font-size: .9375rem; }
 
+  /* Below this width the arrow can't reach the strip from the end of the hint */
+  @media (max-width: 64rem) { .arrow { display: none; } }
   @media (max-width: 40rem) {
-    .stage { min-height: 0; padding: 2.5rem 1rem 1.25rem; border-width: 10px; border-radius: 20px; }
+    .stage { min-height: 0; padding: 2.5rem 1rem 1.25rem; border-width: 10px; border-bottom: 0; border-radius: 20px 20px 0 0; }
     .notch { width: 7rem; height: 1.25rem; }
     .notch::after { top: .3rem; width: 8px; height: 8px; margin-left: -4px; }
     .doc, .arrow { display: none; }
-    .shot, .shot.clean { position: relative; left: auto; top: auto; transform: none; width: 100%; }
+    .shot, .shot.clean { position: relative; left: auto; top: auto; transform: none; width: calc(100vw - 2rem); margin: 0 auto; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -201,6 +208,7 @@
     <p class="lede">A small Chrome extension that strips Google Meet's picture-in-picture window down to the people in your call. Shrink it to a strip and keep working.</p>
   </div>
 
+  <div class="screen-crop">
   <div class="stage" aria-label="Demo of the floating Meet window under a laptop camera">
     <span class="notch" aria-hidden="true"></span>
     <div class="doc" aria-hidden="true">
@@ -213,6 +221,7 @@
       <img class="img-hover" src="assets/hover.webp" width="1722" height="318" alt="With the pointer over the window, Meet's controls appear over the faces.">
     </figure>
 
+  </div>
   </div>
 
   <div class="demo-bar">
