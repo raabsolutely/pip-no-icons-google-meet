@@ -1,4 +1,4 @@
-# Floating Meet Strip
+# PiP No Icons Google Meet
 
 A Chrome extension that strips Google Meet's floating (picture-in-picture) window down to faces.
 
@@ -11,11 +11,11 @@ Works in the Google Meet app (the one installed from Chrome) and in meet.google.
 
 ## Install
 
-1. Download `floating-meet-strip.zip` from the [latest release](../../releases/latest).
+1. Download `pip-no-icons-google-meet.zip` from the [latest release](../../releases/latest).
 2. Unzip it somewhere it can stay, for example your Documents folder. Chrome loads the extension from this folder, so don't delete it.
 3. Open `chrome://extensions` in Chrome.
 4. Turn on **Developer mode** (top right).
-5. Click **Load unpacked** and pick the unzipped `floating-meet-strip` folder.
+5. Click **Load unpacked** and pick the unzipped `pip-no-icons-google-meet` folder.
 
 If you use several Chrome profiles, install it in the profile your Meet app opens with.
 
