@@ -6,7 +6,8 @@
   const NAME = `${TILE} [jsname="giiMnc"]`;
 
   const CSS = `
-    /* Tiles fill the whole window */
+    /* Tiles fill the whole window (fit below scales away Meet's leftover margin) */
+    body { overflow: hidden !important; }
     main[jscontroller="izfDQc"] { inset: 0 !important; }
 
     /* Control bar floats over the video, hidden until the pointer is in the window */
@@ -44,6 +45,35 @@
       e.preventDefault();
       toFullScreen(win);
     }, true);
+
+    // Meet sizes its tile area 16px narrower and 4px shorter than the window and pins it top-left,
+    // which leaves a gap on the right. Scale the tile layer so that area covers the window, centred.
+    // Offsets are layout values, unaffected by the transform, so measuring never feeds back on itself.
+    let queued = false;
+    let last = '';
+    const fit = () => {
+      queued = false;
+      const main = doc.querySelector('main[jscontroller="izfDQc"]');
+      const areas = main ? [...main.children].filter((c) => c.querySelector(TILE)) : [];
+      if (!areas.length) return;
+      const x0 = Math.min(...areas.map((a) => a.offsetLeft));
+      const y0 = Math.min(...areas.map((a) => a.offsetTop));
+      const aw = Math.max(...areas.map((a) => a.offsetLeft + a.offsetWidth)) - x0;
+      const ah = Math.max(...areas.map((a) => a.offsetTop + a.offsetHeight)) - y0;
+      if (!aw || !ah) return;
+      const s = Math.min(Math.max(win.innerWidth / aw, win.innerHeight / ah), 1.15);
+      const tx = (win.innerWidth - aw * s) / 2 - x0 * s;
+      const ty = (win.innerHeight - ah * s) / 2 - y0 * s;
+      const transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${s.toFixed(4)})`;
+      if (transform === last) return;
+      last = transform;
+      main.style.setProperty('transform-origin', '0 0', 'important');
+      main.style.setProperty('transform', transform, 'important');
+    };
+    const refit = () => { if (!queued) { queued = true; win.requestAnimationFrame(fit); } };
+    win.addEventListener('resize', refit);
+    new MutationObserver(refit).observe(doc.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    refit();
   };
 
   // Ctrl+Option+P switches between the strip and Meet in full screen.
