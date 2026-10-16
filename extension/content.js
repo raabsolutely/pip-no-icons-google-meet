@@ -39,10 +39,56 @@
     };
     add();
     new MutationObserver(add).observe(doc.head, { childList: true });
+    doc.addEventListener('keydown', (e) => {
+      if (!isToggle(e)) return;
+      e.preventDefault();
+      toFullScreen(win);
+    }, true);
+  };
+
+  // Ctrl+Option+P switches between the strip and Meet in full screen.
+  // Chrome only opens the floating window from a key press inside Meet, so it works while Meet or the strip has focus.
+  const isToggle = (e) => e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey && e.code === 'KeyP';
+  const hasIcon = (el, name) => [...el.querySelectorAll('i')].some((i) => i.textContent.trim() === name);
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // Page full screen is refused once a key press has been used to close the strip, so bridge.js and
+  // background.js make the whole Meet window full screen instead.
+  const askWindow = (action) => window.postMessage({ source: 'pip-no-icons', action }, location.origin);
+
+  const toFullScreen = (pip) => {
+    pip.close();
+    askWindow('fullscreen');
+  };
+
+  // Opens the strip through Meet's own menu item (this needs the key press), then leaves full screen.
+  const toStrip = async () => {
+    const more = document.querySelector('button[jsname="NakZHc"]') ||
+      [...document.querySelectorAll('button')].find((b) => !b.closest(TILE) && hasIcon(b, 'more_vert'));
+    if (!more) return;
+    more.click();
+    for (let i = 0; i < 40; i++) {
+      const item = [...document.querySelectorAll('[role="menuitem"]')].find((m) => hasIcon(m, 'dropdown'));
+      if (item) {
+        item.click();
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        askWindow('restore');
+        return;
+      }
+      await wait(50);
+    }
   };
 
   const dpip = window.documentPictureInPicture;
   if (!dpip) return;
   dpip.addEventListener('enter', (e) => inject(e.window));
   if (dpip.window) inject(dpip.window);
+
+  document.addEventListener('keydown', (e) => {
+    if (!isToggle(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (dpip.window) toFullScreen(dpip.window);
+    else toStrip();
+  }, true);
 })();

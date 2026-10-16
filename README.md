@@ -26,6 +26,7 @@ If you use several Chrome profiles, install it in the profile your Meet app open
 1. In a call, click **More options** (three dots), then **Open picture-in-picture mode**.
 2. Drag the window's edge to shrink it to a strip.
 3. Hover to get the controls back.
+4. Press **Ctrl+Option+P** to switch between the strip and Meet in full screen. It works while the Meet window or the strip has focus.
 
 ## Update
 

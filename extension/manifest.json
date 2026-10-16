@@ -1,14 +1,20 @@
 {
   "manifest_version": 3,
   "name": "PiP No Icons Google Meet",
-  "version": "0.1.2",
-  "description": "Strips Google Meet's floating window down to faces. Controls appear on hover.",
+  "version": "0.2.0",
+  "description": "Strips Google Meet's floating window down to faces. Controls appear on hover. Ctrl+Option+P switches between the strip and full screen.",
+  "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
       "matches": ["https://meet.google.com/*"],
       "js": ["content.js"],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start"
     }
   ]
 }
