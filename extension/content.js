@@ -46,8 +46,9 @@
       toFullScreen(win);
     }, true);
 
-    // Meet sizes its tile area 16px narrower and 4px shorter than the window and pins it top-left,
-    // which leaves a gap on the right. Scale the tile layer so that area covers the window, centred.
+    // Meet sizes its tile area 16px narrower and 4px shorter than the space it has and pins it top-left,
+    // which leaves a gap on the right. Scale the tile layer to fit that space, centred. Fit, not cover:
+    // with a banner (e.g. "… (Presenting)") above the tiles, covering would cut tiles off at the edges.
     // Offsets are layout values, unaffected by the transform, so measuring never feeds back on itself.
     let queued = false;
     let last = '';
@@ -60,10 +61,12 @@
       const y0 = Math.min(...areas.map((a) => a.offsetTop));
       const aw = Math.max(...areas.map((a) => a.offsetLeft + a.offsetWidth)) - x0;
       const ah = Math.max(...areas.map((a) => a.offsetTop + a.offsetHeight)) - y0;
-      if (!aw || !ah) return;
-      const s = Math.min(Math.max(win.innerWidth / aw, win.innerHeight / ah), 1.15);
-      const tx = (win.innerWidth - aw * s) / 2 - x0 * s;
-      const ty = (win.innerHeight - ah * s) / 2 - y0 * s;
+      const W = main.clientWidth;
+      const H = main.clientHeight;
+      if (!aw || !ah || !W || !H) return;
+      const s = Math.min(Math.max(Math.min(W / aw, H / ah), 0.6), 1.15);
+      const tx = (W - aw * s) / 2 - x0 * s;
+      const ty = (H - ah * s) / 2 - y0 * s;
       const transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${s.toFixed(4)})`;
       if (transform === last) return;
       last = transform;
