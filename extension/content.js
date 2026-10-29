@@ -10,6 +10,9 @@
     body { overflow: hidden !important; }
     main[jscontroller="izfDQc"] { inset: 0 !important; }
 
+    /* Banners above the tiles (e.g. "… (Presenting)") take height from the faces */
+    main[jscontroller="izfDQc"] > :not(:has(${TILE})) { display: none !important; }
+
     /* Control bar floats over the video, hidden until the pointer is in the window */
     ${BAR} {
       position: absolute !important;
@@ -48,7 +51,7 @@
 
     // Meet sizes its tile area 16px narrower and 4px shorter than the space it has and pins it top-left,
     // which leaves a gap on the right. Scale the tile layer to fit that space, centred. Fit, not cover:
-    // with a banner (e.g. "… (Presenting)") above the tiles, covering would cut tiles off at the edges.
+    // covering would cut tiles off at the edges whenever the tile area's shape differs from the window's.
     // Offsets are layout values, unaffected by the transform, so measuring never feeds back on itself.
     let queued = false;
     let last = '';
