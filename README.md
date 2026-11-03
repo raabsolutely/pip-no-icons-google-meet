@@ -5,6 +5,8 @@ A Chrome extension that strips Google Meet's floating (picture-in-picture) windo
 See it at [raabsolutely.github.io/pip-no-icons-google-meet](https://raabsolutely.github.io/pip-no-icons-google-meet/).
 
 - Control bar, Gemini button, mic icons, and tile menus are hidden.
+- Banners above the faces, such as "… (Presenting)", are hidden too.
+- The faces fill the window at any size, with no empty margin at the side and no one cut off when the window is short.
 - Hover over the window and Meet's own controls fade in at the bottom.
 - Hover over a tile to see the person's name.
 - The main Meet page is untouched.
